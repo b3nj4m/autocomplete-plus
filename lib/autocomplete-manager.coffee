@@ -108,7 +108,7 @@ class AutocompleteManager
       scopeChain: currentScopeChain
       prefix: @prefixForCursor(cursor)
 
-    @scatterRequest(options).then (shown) ->
+    evnt.pendingKeyBinding @scatterRequest(options).then (shown) ->
       evnt.abortKeyBinding() unless shown
 
   scatterRequest: (options) =>
