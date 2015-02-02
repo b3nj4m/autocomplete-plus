@@ -108,7 +108,8 @@ class AutocompleteManager
       scopeChain: currentScopeChain
       prefix: @prefixForCursor(cursor)
 
-    @scatterRequest(options)
+    @scatterRequest(options).then (shown) ->
+      evnt.abortKeyBinding() unless shown
 
   scatterRequest: (options) =>
     providers = @providerManager.providersForScopeChain(options.scopeChain)
@@ -119,7 +120,6 @@ class AutocompleteManager
     @currentSuggestionsPromise = suggestionsPromise = Promise.all(providers)
       .then(_.partial(@gatherSuggestions, providers))
       .then((suggestions) => @showSuggestions(suggestions, suggestionsPromise, options))
-      .then((shown) => evnt.abortKeyBinding() unless shown)
 
   showSuggestions: (suggestions, suggestionsPromise, options) =>
     unless suggestions.length
