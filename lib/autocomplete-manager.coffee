@@ -85,7 +85,7 @@ class AutocompleteManager
 
   # Private: Finds suggestions for the current prefix, sets the list items,
   # positions the overlay and shows it
-  runAutocompletion: =>
+  runAutocompletion: (evnt) =>
     @hideSuggestionList()
     return unless @providerManager?
     return unless @editor?
@@ -119,15 +119,17 @@ class AutocompleteManager
     @currentSuggestionsPromise = suggestionsPromise = Promise.all(providers)
       .then(_.partial(@gatherSuggestions, providers))
       .then((suggestions) => @showSuggestions(suggestions, suggestionsPromise, options))
+      .then((shown) => evnt.abortKeyBinding() unless shown)
 
   showSuggestions: (suggestions, suggestionsPromise, options) =>
     unless suggestions.length
       @emitter.emit('did-autocomplete', {options, suggestions})
-      return
+      return false
     suggestions = _.uniq(suggestions, (s) -> s.word)
     # Show the suggestion list if we have not already requested more suggestions
     @showSuggestionList(suggestions) if @currentSuggestionsPromise is suggestionsPromise
     @emitter.emit('did-autocomplete', {options, suggestions})
+    true
 
   # Private: gather suggestions based on providers
   #
